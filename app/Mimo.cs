@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -171,9 +172,13 @@ namespace Mimo
         void StartReceiver()
         {
             if (receiver != null) return;
-            string folder = Path.Combine(root, "build-fit");
+            // an installed Mimo carries its receiver; a source checkout uses build-fit and MSYS2
+            string installed = Path.Combine(root, "receiver");
+            bool packaged = File.Exists(Path.Combine(installed, "bin", "uxplay.exe"));
+            string folder = packaged ? Path.Combine(installed, "bin") : Path.Combine(root, "build-fit");
+            string libraries = packaged ? folder : MsysBin;
             string exe = Path.Combine(folder, "uxplay.exe");
-            if (!File.Exists(exe) || !Directory.Exists(MsysBin))
+            if (!File.Exists(exe) || !Directory.Exists(libraries))
             {
                 SetState("error", "Mimo could not find its receiver files.");
                 return;
@@ -186,11 +191,20 @@ namespace Mimo
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
             };
-            info.EnvironmentVariables["PATH"] = MsysBin + ";" + info.EnvironmentVariables["PATH"];
+            info.EnvironmentVariables["PATH"] = libraries + ";" + info.EnvironmentVariables["PATH"];
+            if (packaged)
+            {
+                string data = Path.GetDirectoryName(settingsPath);
+                info.EnvironmentVariables["GST_PLUGIN_SYSTEM_PATH_1_0"] = Path.Combine(installed, "lib", "gstreamer-1.0");
+                info.EnvironmentVariables["GST_PLUGIN_SCANNER_1_0"] =
+                    Path.Combine(installed, "libexec", "gstreamer-1.0", "gst-plugin-scanner.exe");
+                info.EnvironmentVariables["GST_REGISTRY_1_0"] = Path.Combine(data, "gstreamer-registry.bin");
+            }
             var process = new Process { StartInfo = info, EnableRaisingEvents = true };
             process.OutputDataReceived += (sender, args) => OnLogLine(args.Data);
             process.ErrorDataReceived += (sender, args) => OnLogLine(args.Data);
             process.Exited += (sender, args) => BeginInvoke((Action) (() => OnReceiverExit(process)));
+            File.WriteAllText(Path.ChangeExtension(settingsPath, ".log"), "");
             stopping = false;
             device = null;
             videoSize = "";
@@ -243,6 +257,7 @@ namespace Mimo
 
         void HandleLogLine(string line)
         {
+            File.AppendAllText(Path.ChangeExtension(settingsPath, ".log"), line + Environment.NewLine);
             Match match = ConnectionRequest.Match(line);
             if (match.Success)
             {
@@ -281,7 +296,7 @@ namespace Mimo
             }
             entry["name"] = name;
             entry["model"] = model;
-            entry["lastSeen"] = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
+            entry["lastSeen"] = DateTime.Now.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
             SaveSettings();
             return entry;
         }

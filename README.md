@@ -2,7 +2,18 @@
 
 Mimo is an iPhone screen mirroring receiver for Windows by Mello, based on [UxPlay](https://github.com/FDH2/UxPlay) by the UxPlay authors.
 
-Changes from upstream:
+## Install
+
+Mimo needs 64-bit Windows 10 or 11, and about 3 GB of disk space.
+
+1. Download or clone this repository.
+2. Double-click `setup.bat` and wait for it to finish. It installs MSYS2 at `C:\msys64`, builds Mimo, and adds a Desktop icon.
+3. Open Mimo from the Desktop icon. If Windows Firewall asks, allow it on Private networks.
+4. Put your iPhone on the same Wi-Fi, open Control Center, tap Screen Mirroring, and choose Mimo.
+
+The first start can take a few minutes.
+
+## Changes from upstream
 
 - The video window refits itself when the iPhone rotates or the stream size changes (Windows).
 - Mouse wheel zoom, drag to pan, double-click to restore, with `d3d12videosink` (Windows).
