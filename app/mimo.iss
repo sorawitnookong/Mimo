@@ -3,7 +3,7 @@
 [Setup]
 AppId={{7F5F1C9A-5A0B-4C0C-9E3B-4E8F2A6D1B10}
 AppName=Mimo
-AppVersion=0.1.1
+AppVersion=0.2.0
 AppPublisher=Mello
 AppPublisherURL=https://github.com/sorawitnookong/Mimo
 DefaultDirName={autopf}\Mimo

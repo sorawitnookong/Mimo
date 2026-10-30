@@ -24,6 +24,8 @@ Copy-Item (Join-Path $root 'Mimo.exe'), (Join-Path $root 'LICENSE') $dist
 Copy-Item (Join-Path $app 'vendor\*.dll') $dist
 New-Item -ItemType Directory -Force (Join-Path $dist 'app') | Out-Null
 Copy-Item (Join-Path $app 'ui') (Join-Path $dist 'app\ui') -Recurse
+& (Join-Path $app 'get-scrcpy.ps1')
+Copy-Item (Join-Path $root 'scrcpy') (Join-Path $dist 'scrcpy') -Recurse
 Copy-Item (Join-Path $root 'assets\mimo.ico') (Join-Path $receiver 'assets')
 Copy-Item (Join-Path $root 'build-fit\uxplay.exe') $bin
 Copy-Item (Join-Path $msys 'libexec\gstreamer-1.0\gst-plugin-scanner.exe') $scanner

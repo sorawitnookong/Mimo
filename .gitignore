@@ -4,3 +4,4 @@ build-fit/
 Mimo.exe
 /*.dll
 dist/
+/scrcpy/

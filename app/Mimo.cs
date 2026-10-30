@@ -10,6 +10,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Web.Script.Serialization;
 using System.Windows.Forms;
 using Microsoft.Web.WebView2.Core;
@@ -47,6 +48,18 @@ namespace Mimo
         string state = "stopped";
         string videoSize = "";
         Dictionary<string, object> device;
+
+        // Android (Beta): scrcpy and adb are bundled in the scrcpy folder
+        const string AndroidWindowTitle = "Mimo Android";
+        static readonly Regex AdbDevice = new Regex(@"^(\S+)\s+(device|unauthorized|offline)\b(.*)$");
+        static readonly Regex AdbModel = new Regex(@"\bmodel:(\S+)");
+        readonly Timer androidTimer = new Timer { Interval = 2000 };
+        List<Dictionary<string, object>> androidDevices = new List<Dictionary<string, object>>();
+        Process androidMirror;
+        string androidSerial;
+        string androidError;
+        bool androidPolling;
+        bool androidStopping;
 
         [DllImport("user32.dll", CharSet = CharSet.Unicode)]
         static extern IntPtr FindWindow(string className, string title);
@@ -95,7 +108,145 @@ namespace Mimo
                 web.CoreWebView2.WebMessageReceived += OnWebMessage;
                 web.CoreWebView2.Navigate("https://mimo.local/index.html");
             };
-            FormClosing += (sender, args) => StopReceiver();
+            androidTimer.Tick += (sender, args) => PollAndroid();
+            FormClosing += (sender, args) =>
+            {
+                StopReceiver();
+                androidTimer.Stop();
+                StopAndroid();
+                StopAdbServer();
+            };
+        }
+
+        string AndroidTool(string name)
+        {
+            return Path.Combine(root, "scrcpy", name);
+        }
+
+        ProcessStartInfo AndroidProcess(string name, string arguments)
+        {
+            return new ProcessStartInfo(AndroidTool(name), arguments)
+            {
+                WorkingDirectory = Path.Combine(root, "scrcpy"),
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+            };
+        }
+
+        void PollAndroid()
+        {
+            if (androidPolling || !File.Exists(AndroidTool("adb.exe"))) return;
+            androidPolling = true;
+            Task.Run(() => ListAndroidDevices()).ContinueWith(task =>
+            {
+                BeginInvoke((Action) (() =>
+                {
+                    androidPolling = false;
+                    androidDevices = task.Result;
+                    SendState();
+                }));
+            });
+        }
+
+        List<Dictionary<string, object>> ListAndroidDevices()
+        {
+            var devices = new List<Dictionary<string, object>>();
+            try
+            {
+                using (var process = Process.Start(AndroidProcess("adb.exe", "devices -l")))
+                {
+                    string output = process.StandardOutput.ReadToEnd();
+                    process.WaitForExit(5000);
+                    foreach (string line in output.Split('\n'))
+                    {
+                        Match match = AdbDevice.Match(line.Trim());
+                        if (!match.Success) continue;
+                        Match model = AdbModel.Match(match.Groups[3].Value);
+                        devices.Add(new Dictionary<string, object>
+                        {
+                            { "serial", match.Groups[1].Value },
+                            { "state", match.Groups[2].Value },
+                            { "model", model.Success ? model.Groups[1].Value.Replace('_', ' ') : "Android phone" },
+                        });
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                // adb can fail while it starts; the next poll tries again
+            }
+            return devices;
+        }
+
+        void StartAndroid(string serial)
+        {
+            if (androidMirror != null) return;
+            if (!File.Exists(AndroidTool("scrcpy.exe")))
+            {
+                androidError = "Mimo could not find its Android files.";
+                SendState();
+                return;
+            }
+            string arguments = string.Format("--serial \"{0}\" --window-title \"{1}\"",
+                serial.Replace("\"", ""), AndroidWindowTitle);
+            if (!settings.audio) arguments += " --no-audio";
+            var process = new Process { StartInfo = AndroidProcess("scrcpy.exe", arguments), EnableRaisingEvents = true };
+            string log = Path.ChangeExtension(settingsPath, ".android.log");
+            File.WriteAllText(log, "");
+            DataReceivedEventHandler write = (sender, args) =>
+            {
+                if (string.IsNullOrEmpty(args.Data) || IsDisposed) return;
+                BeginInvoke((Action) (() => File.AppendAllText(log, args.Data + Environment.NewLine)));
+            };
+            process.OutputDataReceived += write;
+            process.ErrorDataReceived += write;
+            process.Exited += (sender, args) => BeginInvoke((Action) (() => OnAndroidExit(process)));
+            androidStopping = false;
+            androidError = null;
+            androidSerial = serial;
+            androidMirror = process;
+            process.Start();
+            process.BeginOutputReadLine();
+            process.BeginErrorReadLine();
+            SendState();
+        }
+
+        void StopAndroid()
+        {
+            Process process = androidMirror;
+            if (process == null) return;
+            androidStopping = true;
+            androidMirror = null;
+            androidSerial = null;
+            try { process.Kill(); } catch (InvalidOperationException) { }
+            if (!IsDisposed) SendState();
+        }
+
+        void OnAndroidExit(Process process)
+        {
+            if (process != androidMirror) return;
+            androidMirror = null;
+            androidSerial = null;
+            if (!androidStopping && process.ExitCode != 0)
+            {
+                androidError = "Android mirroring stopped. Check the USB cable and try again.";
+            }
+            SendState();
+        }
+
+        void StopAdbServer()
+        {
+            if (!File.Exists(AndroidTool("adb.exe"))) return;
+            try
+            {
+                Process.Start(AndroidProcess("adb.exe", "kill-server"));
+            }
+            catch (Exception)
+            {
+                // nothing is left to clean up if adb cannot start
+            }
         }
 
         Settings LoadSettings()
@@ -132,6 +283,19 @@ namespace Mimo
                     break;
                 case "showVideo":
                     ShowVideo();
+                    break;
+                case "androidWatch":
+                    androidTimer.Enabled = (bool) message["enabled"];
+                    if (androidTimer.Enabled) PollAndroid();
+                    break;
+                case "androidStart":
+                    StartAndroid((string) message["serial"]);
+                    break;
+                case "androidStop":
+                    StopAndroid();
+                    break;
+                case "androidShow":
+                    ShowWindow(AndroidWindowTitle);
                     break;
                 case "saveSettings":
                     ApplySettings((Dictionary<string, object>) message["settings"]);
@@ -303,10 +467,19 @@ namespace Mimo
 
         void ShowVideo()
         {
-            IntPtr video = FindWindow("MimoVideoWindow", null);
-            if (video == IntPtr.Zero) return;
-            ShowWindow(video, 9);
-            SetForegroundWindow(video);
+            ShowWindow(FindWindow("MimoVideoWindow", null));
+        }
+
+        static void ShowWindow(string title)
+        {
+            ShowWindow(FindWindow(null, title));
+        }
+
+        static void ShowWindow(IntPtr window)
+        {
+            if (window == IntPtr.Zero) return;
+            ShowWindow(window, 9);
+            SetForegroundWindow(window);
         }
 
         void SetState(string value, string error)
@@ -325,6 +498,14 @@ namespace Mimo
                 { "device", device },
                 { "videoSize", videoSize },
                 { "settings", settings },
+                { "android", new Dictionary<string, object>
+                    {
+                        { "available", File.Exists(AndroidTool("scrcpy.exe")) },
+                        { "devices", androidDevices },
+                        { "serial", androidSerial },
+                        { "error", androidError },
+                    }
+                },
             }));
         }
     }

@@ -231,6 +231,14 @@ main { overflow-y: auto; }
 .button.secondary-tone { background: var(--pink); border-color: var(--pink); }
 .button.secondary-tone:hover { background: #ffb4cd; border-color: #ffb4cd; }
 
+.button:disabled {
+  background: var(--gray);
+  border-color: var(--gray);
+  color: var(--muted);
+  cursor: not-allowed;
+  transform: none;
+}
+
 :focus-visible { outline: 2px solid var(--midnight); outline-offset: 2px; }
 
 .alert {
@@ -323,6 +331,33 @@ main { overflow-y: auto; }
   gap: 16px;
   align-items: start;
 }
+
+.beta {
+  margin-left: auto;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: var(--lavender-soft);
+  font-size: 11px;
+  line-height: 20px;
+  font-weight: 800;
+}
+
+h1 .pill { line-height: 24px; vertical-align: middle; }
+
+.android-list { padding: 8px; }
+
+.android-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+}
+
+.android-row > span { flex: 1; min-width: 160px; }
+.android-row strong { display: block; overflow-wrap: anywhere; }
+.android-row small { color: var(--muted); }
+.android-row .actions { display: flex; flex: none; gap: 8px; }
 
 .device-list { padding: 8px; }
 .device-info { padding: 24px; }
@@ -445,6 +480,7 @@ input[type="checkbox"]:checked::after { transform: translateX(20px); }
   .brand { justify-content: center; padding: 0 0 16px; }
   .brand div { display: none; }
   .nav-item { justify-content: center; padding: 8px; font-size: 0; gap: 0; }
+  .beta { display: none; }
   .sidebar-status { justify-content: center; font-size: 0; gap: 0; }
   .hero-card { flex-wrap: wrap; }
   .hero-actions { width: 100%; justify-content: flex-start; }

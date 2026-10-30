@@ -51,6 +51,7 @@ function send(message) {
 
 function showView(name) {
   all(".view").forEach((view) => { view.hidden = view.id !== name; });
+  send({ type: "androidWatch", enabled: name === "android" });
   all(".nav-item").forEach((item) => {
     if (item.dataset.view === name) {
       item.setAttribute("aria-current", "page");
@@ -98,6 +99,53 @@ function render(next) {
     formLoaded = true;
   }
   renderDevices();
+  renderAndroid();
+}
+
+const androidStates = {
+  device: "Ready to mirror",
+  unauthorized: "Tap Allow on your phone",
+  offline: "Reconnect the USB cable",
+};
+
+function renderAndroid() {
+  const android = current.android;
+  const error = android.error || (android.available ? null : "Mimo could not find its Android files.");
+  document.querySelector("[data-android-error]").hidden = !error;
+  setText("[data-android-error-text]", error || "");
+
+  const list = document.querySelector("[data-android-list]");
+  list.replaceChildren();
+  if (!android.devices.length) {
+    list.append(emptyState("i-android", "No Android phone found", "Follow the steps below and your phone appears here."));
+    return;
+  }
+  android.devices.forEach((device) => {
+    const mirroring = android.serial === device.serial;
+    const row = document.createElement("div");
+    row.className = "android-row";
+    row.innerHTML = '<svg class="icon"><use href="#i-android"/></svg><span><strong></strong><small></small></span><div class="actions"></div>';
+    row.querySelector("strong").textContent = device.model;
+    row.querySelector("small").textContent = mirroring ? "Mirroring. Use your mouse and keyboard to control it." : androidStates[device.state];
+    const actions = row.querySelector(".actions");
+    if (mirroring) {
+      actions.append(androidButton("Show mirror", false, { type: "androidShow" }));
+      actions.append(androidButton("Stop", true, { type: "androidStop" }));
+    } else {
+      const button = androidButton("Mirror", true, { type: "androidStart", serial: device.serial });
+      button.disabled = device.state !== "device" || Boolean(android.serial);
+      actions.append(button);
+    }
+    list.append(row);
+  });
+}
+
+function androidButton(label, primary, message) {
+  const button = document.createElement("button");
+  button.className = primary ? "button primary" : "button";
+  button.textContent = label;
+  button.addEventListener("click", () => send(message));
+  return button;
 }
 
 function renderDevices() {
@@ -208,6 +256,14 @@ document.querySelector("[data-settings-form]").addEventListener("submit", (event
 });
 
 function previewHost(message) {
+  if (!current) {
+    return;
+  }
+  if (message.type === "androidStart" || message.type === "androidStop") {
+    const serial = message.type === "androidStart" ? message.serial : null;
+    render({ ...current, android: { ...current.android, serial } });
+    return;
+  }
   const next = { ...current, error: null, device: null, videoSize: "" };
   if (message.type === "start") {
     next.state = "waiting";
@@ -227,7 +283,14 @@ if (host) {
   const state = new URLSearchParams(location.search).get("state") || "stopped";
   const device = { id: "00:11:22:33:44:55", name: "Mello's iPhone", model: "iPhone15,2", lastSeen: "2026-10-30 22:10" };
   const live = state === "mirroring" || state === "connecting";
+  const androidState = new URLSearchParams(location.search).get("android");
   render({
+    android: {
+      available: true,
+      serial: null,
+      error: null,
+      devices: androidState ? [{ serial: "ABC123", state: androidState, model: "Pixel 8" }] : [],
+    },
     state,
     error: state === "error" ? "The receiver stopped unexpectedly." : null,
     device: live ? device : null,
