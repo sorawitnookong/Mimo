@@ -37,6 +37,8 @@ const copy = {
 let current = null;
 let selectedDevice = null;
 let formLoaded = false;
+let activeView = "dashboard";
+let androidMode = "wireless";
 
 const all = (selector) => document.querySelectorAll(selector);
 const setText = (selector, text) => all(selector).forEach((node) => { node.textContent = text; });
@@ -51,7 +53,8 @@ function send(message) {
 
 function showView(name) {
   all(".view").forEach((view) => { view.hidden = view.id !== name; });
-  send({ type: "androidWatch", enabled: name === "android" });
+  activeView = name;
+  updateAndroidMode();
   all(".nav-item").forEach((item) => {
     if (item.dataset.view === name) {
       item.setAttribute("aria-current", "page");
@@ -59,6 +62,16 @@ function showView(name) {
       item.removeAttribute("aria-current");
     }
   });
+}
+
+function updateAndroidMode() {
+  all("[data-android-mode]").forEach((tab) => {
+    tab.setAttribute("aria-selected", String(tab.dataset.androidMode === androidMode));
+  });
+  all("[data-android-panel]").forEach((panel) => {
+    panel.hidden = panel.dataset.androidPanel !== androidMode;
+  });
+  send({ type: "androidWatch", enabled: activeView === "android" && androidMode === "usb" });
 }
 
 function render(next) {
@@ -219,6 +232,12 @@ function fillSettings(settings) {
 }
 
 document.addEventListener("click", (event) => {
+  const mode = event.target.closest("[data-android-mode]");
+  if (mode) {
+    androidMode = mode.dataset.androidMode;
+    updateAndroidMode();
+    return;
+  }
   const nav = event.target.closest("[data-view]");
   if (nav) {
     showView(nav.dataset.view);
@@ -228,7 +247,9 @@ document.addEventListener("click", (event) => {
   if (!action) {
     return;
   }
-  if (action.dataset.action === "show") {
+  if (action.dataset.action === "wireless") {
+    send({ type: "androidWireless" });
+  } else if (action.dataset.action === "show") {
     send({ type: "showVideo" });
   } else if (current.state === "stopped" || current.state === "error") {
     send({ type: "start" });
@@ -284,6 +305,9 @@ if (host) {
   const device = { id: "00:11:22:33:44:55", name: "Mello's iPhone", model: "iPhone15,2", lastSeen: "2026-10-30 22:10" };
   const live = state === "mirroring" || state === "connecting";
   const androidState = new URLSearchParams(location.search).get("android");
+  if (new URLSearchParams(location.search).get("mode") === "usb") {
+    androidMode = "usb";
+  }
   render({
     android: {
       available: true,

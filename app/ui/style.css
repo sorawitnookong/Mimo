@@ -344,6 +344,35 @@ main { overflow-y: auto; }
 
 h1 .pill { line-height: 24px; vertical-align: middle; }
 
+.mode-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.mode-tab {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--gray);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--midnight);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--ease), border-color var(--ease);
+}
+
+.mode-tab:hover { border-color: var(--blue); }
+.mode-tab[aria-selected="true"] { background: var(--blue-soft); border-color: var(--blue); }
+.mode-tab strong { display: block; }
+.mode-tab small { display: block; color: var(--muted); }
+
+[data-android-panel][hidden] { display: none; }
+
 .android-list { padding: 8px; }
 
 .android-row {

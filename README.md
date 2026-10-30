@@ -17,7 +17,7 @@ The first start can take a few minutes.
 
 - The video window refits itself when the iPhone rotates or the stream size changes (Windows).
 - Mouse wheel zoom, drag to pan, double-click to restore, with `d3d12videosink` (Windows).
-- Android (Beta): USB mirroring and control through a bundled copy of [scrcpy](https://github.com/Genymobile/scrcpy). It has not been tested on real phones yet.
+- Android (Beta): USB mirroring and control through a bundled copy of [scrcpy](https://github.com/Genymobile/scrcpy), or wireless casting with Windows Wireless Display. It has not been tested on real phones yet.
 - `app/`, a Windows desktop app with Dashboard, Mirroring, Devices and Settings screens. Build it with `app/build.ps1`.
 
 Mimo keeps the GNU GPL v3 license of UxPlay: see [LICENSE](LICENSE). The upstream documentation follows.

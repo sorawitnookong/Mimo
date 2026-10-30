@@ -294,6 +294,9 @@ namespace Mimo
                 case "androidStop":
                     StopAndroid();
                     break;
+                case "androidWireless":
+                    Process.Start(new ProcessStartInfo("ms-settings:project") { UseShellExecute = true });
+                    break;
                 case "androidShow":
                     ShowWindow(AndroidWindowTitle);
                     break;

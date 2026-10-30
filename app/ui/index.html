@@ -98,19 +98,51 @@
       <section class="view" id="android" hidden>
         <header>
           <h1>Android <span class="pill" data-tone="busy">Beta</span></h1>
-          <p>Mirror and control your Android phone with a USB cable.</p>
+          <p>Choose how to connect your Android phone.</p>
         </header>
-        <div class="alert" data-android-error hidden>
-          <svg class="icon"><use href="#i-alert"/></svg>
-          <span data-android-error-text></span>
+        <div class="mode-tabs" role="tablist" aria-label="Connection type">
+          <button class="mode-tab" role="tab" data-android-mode="wireless">
+            <svg class="icon"><use href="#i-wifi"/></svg>
+            <span><strong>Wireless</strong><small>Show your screen, no cable</small></span>
+          </button>
+          <button class="mode-tab" role="tab" data-android-mode="usb">
+            <svg class="icon"><use href="#i-usb"/></svg>
+            <span><strong>USB</strong><small>Mirror and control, works on more phones</small></span>
+          </button>
         </div>
-        <div class="card android-list" data-android-list></div>
-        <div class="steps">
-          <div class="card step"><svg class="icon"><use href="#i-settings"/></svg><h3>Turn on USB debugging</h3><p>In Settings, open About phone and tap Build number 7 times. Then turn on USB debugging in Developer options.</p></div>
-          <div class="card step"><svg class="icon"><use href="#i-usb"/></svg><h3>Plug in your phone</h3><p>Use a USB cable that can transfer data, not one that only charges.</p></div>
-          <div class="card step"><svg class="icon"><use href="#i-android"/></svg><h3>Tap Allow</h3><p>Allow USB debugging on your phone, then press Mirror here.</p></div>
+
+        <div data-android-panel="wireless">
+          <div class="card hero-card">
+            <div class="phone-mark"><svg class="icon"><use href="#i-mirror"/></svg></div>
+            <div class="hero-copy">
+              <h2>Use Windows Wireless Display</h2>
+              <p class="technical">Windows shows your phone in its own app, outside Mimo.</p>
+            </div>
+            <div class="hero-actions">
+              <button class="button primary" data-action="wireless">Open Windows setup</button>
+            </div>
+          </div>
+          <div class="steps">
+            <div class="card step"><svg class="icon"><use href="#i-settings"/></svg><h3>Set up this PC</h3><p>On the Windows page, add Wireless Display if asked, then allow projecting.</p></div>
+            <div class="card step"><svg class="icon"><use href="#i-mirror"/></svg><h3>Open Wireless Display</h3><p>Open the Wireless Display app on this PC and leave it waiting.</p></div>
+            <div class="card step"><svg class="icon"><use href="#i-android"/></svg><h3>Cast from your phone</h3><p>Tap Smart View, Cast or Screen Mirror, then choose this PC.</p></div>
+          </div>
+          <p class="hint">Not every phone or PC supports this. If your PC does not appear, use USB.</p>
         </div>
-        <p class="hint">Android support is new and still being tested. Sound needs Android 11 or newer.</p>
+
+        <div data-android-panel="usb" hidden>
+          <div class="alert" data-android-error hidden>
+            <svg class="icon"><use href="#i-alert"/></svg>
+            <span data-android-error-text></span>
+          </div>
+          <div class="card android-list" data-android-list></div>
+          <div class="steps">
+            <div class="card step"><svg class="icon"><use href="#i-settings"/></svg><h3>Turn on USB debugging</h3><p>In Settings, open About phone and tap Build number 7 times. Then turn on USB debugging in Developer options.</p></div>
+            <div class="card step"><svg class="icon"><use href="#i-usb"/></svg><h3>Plug in your phone</h3><p>Use a USB cable that can transfer data, not one that only charges.</p></div>
+            <div class="card step"><svg class="icon"><use href="#i-android"/></svg><h3>Tap Allow</h3><p>Allow USB debugging on your phone, then press Mirror here.</p></div>
+          </div>
+          <p class="hint">Android support is new and still being tested. Sound needs Android 11 or newer.</p>
+        </div>
       </section>
 
       <section class="view" id="devices" hidden>
