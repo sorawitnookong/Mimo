@@ -1,7 +1,7 @@
-/* Double-click launcher for uxplay on Windows: starts build-fit\uxplay.exe with the MSYS2 libraries.
+/* Double-click launcher for Mimo on Windows: starts build-fit\uxplay.exe with the MSYS2 libraries.
  * Closing this console window (or the video window) stops uxplay.
  *
- * Build with: gcc -O2 -static -o UxPlay.exe launcher/uxplay-launcher.c
+ * Build with: gcc -O2 -static -o Mimo.exe launcher/mimo-launcher.c
  */
 
 #include <windows.h>
@@ -9,7 +9,7 @@
 #include <string.h>
 
 #define MSYS2_BIN "C:\\msys64\\ucrt64\\bin"
-#define UXPLAY_ARGS "uxplay -n Notebook -vs d3d12videosink -s 1920x1080@60 -fps 60"
+#define UXPLAY_ARGS "uxplay -n Mimo -vs d3d12videosink -s 1920x1080@60 -fps 60"
 
 static BOOL WINAPI ignore_ctrl(DWORD signal) {
     /* uxplay handles ctrl-c itself: keep waiting until it has finished */
@@ -29,9 +29,9 @@ int main(void) {
     char path[32768];
     char args[] = UXPLAY_ARGS;
 
-    SetConsoleTitleA("UxPlay");
+    SetConsoleTitleA("Mimo");
     if (!GetModuleFileNameA(NULL, dir, sizeof(dir))) {
-        return fail("Could not find the UxPlay folder.");
+        return fail("Could not find the Mimo folder.");
     }
     char *slash = strrchr(dir, '\\');
     if (slash) {
@@ -51,8 +51,8 @@ int main(void) {
     snprintf(path, sizeof(path), "%s;%s", MSYS2_BIN, old_path);
     SetEnvironmentVariableA("PATH", path);
 
-    printf("UxPlay is starting. Keep this window open.\n\n");
-    printf("On iPhone: Control Center > Screen Mirroring > Notebook\n");
+    printf("Mimo is starting. Keep this window open.\n\n");
+    printf("On iPhone: Control Center > Screen Mirroring > Mimo\n");
     printf("To stop: close this window.\n\n");
 
     STARTUPINFOA startup = {0};

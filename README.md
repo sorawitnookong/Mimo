@@ -1,14 +1,14 @@
-# Mello's UxPlay
+# Mimo
 
-An iPhone screen mirroring receiver for Windows, based on [UxPlay](https://github.com/FDH2/UxPlay) by the UxPlay authors.
+Mimo is an iPhone screen mirroring receiver for Windows by Mello, based on [UxPlay](https://github.com/FDH2/UxPlay) by the UxPlay authors.
 
 Changes from upstream:
 
 - The video window refits itself when the iPhone rotates or the stream size changes (Windows).
 - Mouse wheel zoom, drag to pan, double-click to restore, with `d3d12videosink` (Windows).
-- `launcher/uxplay-launcher.c`, a small double-click launcher (Windows).
+- `launcher/mimo-launcher.c`, a small double-click launcher (Windows).
 
-This project keeps the GNU GPL v3 license of UxPlay: see [LICENSE](LICENSE). The upstream documentation follows.
+Mimo keeps the GNU GPL v3 license of UxPlay: see [LICENSE](LICENSE). The upstream documentation follows.
 
 ---
 

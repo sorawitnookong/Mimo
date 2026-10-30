@@ -1420,9 +1420,9 @@ static DWORD WINAPI zoom_window_thread(LPVOID data) {
     window_class.hInstance = GetModuleHandleW(NULL);
     window_class.hCursor = LoadCursor(NULL, IDC_ARROW);
     window_class.hbrBackground = (HBRUSH) GetStockObject(BLACK_BRUSH);
-    window_class.lpszClassName = L"UxPlayZoomWindow";
+    window_class.lpszClassName = L"MimoVideoWindow";
     RegisterClassW(&window_class);
-    zoom_window = CreateWindowExW(0, window_class.lpszClassName, L"UxPlay", WS_OVERLAPPEDWINDOW,
+    zoom_window = CreateWindowExW(0, window_class.lpszClassName, L"Mimo", WS_OVERLAPPEDWINDOW,
                                   CW_USEDEFAULT, CW_USEDEFAULT, 640, 480, NULL, NULL, window_class.hInstance, NULL);
     SetEvent(ready);
     MSG msg;
@@ -1445,7 +1445,6 @@ static void zoom_window_start(const char *server_name) {
     }
     CloseHandle(ready);
     if (zoom_window) {
-        SetWindowTextA(zoom_window, server_name);
         video_renderer_set_window_handle((uintptr_t) zoom_window);
     }
 }
