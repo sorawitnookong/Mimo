@@ -6,7 +6,7 @@ Changes from upstream:
 
 - The video window refits itself when the iPhone rotates or the stream size changes (Windows).
 - Mouse wheel zoom, drag to pan, double-click to restore, with `d3d12videosink` (Windows).
-- `launcher/mimo-launcher.c`, a small double-click launcher (Windows).
+- `app/`, a Windows desktop app with Dashboard, Mirroring, Devices and Settings screens. Build it with `app/build.ps1`.
 
 Mimo keeps the GNU GPL v3 license of UxPlay: see [LICENSE](LICENSE). The upstream documentation follows.
 

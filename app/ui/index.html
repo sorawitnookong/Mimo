@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mimo</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <svg width="0" height="0" class="icon-sprite" aria-hidden="true">
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7"/><path d="M6 10v9a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-9"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="3"/><path d="M11 18h2"/></symbol>
+    <symbol id="i-devices" viewBox="0 0 24 24"><rect x="3" y="5" width="13" height="10" rx="2"/><path d="M7 19h5"/><rect x="16" y="9" width="5" height="10" rx="1.5"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 7h10"/><path d="M18 7h2"/><circle cx="16" cy="7" r="2"/><path d="M4 17h2"/><path d="M10 17h10"/><circle cx="8" cy="17" r="2"/></symbol>
+    <symbol id="i-wifi" viewBox="0 0 24 24"><path d="M3 9.5a14 14 0 0 1 18 0"/><path d="M6.5 13.5a9 9 0 0 1 11 0"/><path d="M10 17a3.5 3.5 0 0 1 4 0"/></symbol>
+    <symbol id="i-mirror" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><path d="M12 16.5v.01"/></symbol>
+  </svg>
+
+  <div class="shell">
+    <nav class="sidebar" aria-label="Main">
+      <div class="brand">
+        <img src="mimo.png" alt="" width="40" height="40">
+        <div>
+          <strong>Mimo</strong>
+          <small>Your Phone, Reflected.</small>
+        </div>
+      </div>
+      <button class="nav-item" data-view="dashboard"><svg class="icon"><use href="#i-home"/></svg>Dashboard</button>
+      <button class="nav-item" data-view="mirroring"><svg class="icon"><use href="#i-phone"/></svg>Mirroring</button>
+      <button class="nav-item" data-view="devices"><svg class="icon"><use href="#i-devices"/></svg>Devices</button>
+      <button class="nav-item" data-view="settings"><svg class="icon"><use href="#i-settings"/></svg>Settings</button>
+      <div class="sidebar-status" aria-live="polite">
+        <span class="dot" data-status-dot></span>
+        <span data-status-text></span>
+      </div>
+    </nav>
+
+    <main>
+      <section class="view" id="dashboard" hidden>
+        <header>
+          <h1 data-hero-title></h1>
+          <p data-hero-text></p>
+        </header>
+        <div class="alert" data-error hidden>
+          <svg class="icon"><use href="#i-alert"/></svg>
+          <span data-error-text></span>
+        </div>
+        <div class="card hero-card">
+          <div class="phone-mark" data-phone-mark>
+            <svg class="icon"><use href="#i-phone"/></svg>
+          </div>
+          <div class="hero-copy">
+            <span class="pill" data-status-pill></span>
+            <h2 data-device-name></h2>
+            <p class="technical" data-device-detail></p>
+          </div>
+          <div class="hero-actions">
+            <button class="button primary" data-action="toggle"></button>
+            <button class="button" data-action="show" hidden>Show mirror</button>
+          </div>
+        </div>
+        <div class="steps" data-steps>
+          <div class="card step"><svg class="icon"><use href="#i-wifi"/></svg><h3>Same Wi-Fi</h3><p>Keep your iPhone and this computer on the same network.</p></div>
+          <div class="card step"><svg class="icon"><use href="#i-mirror"/></svg><h3>Screen Mirroring</h3><p>Open Control Center on your iPhone and tap Screen Mirroring.</p></div>
+          <div class="card step"><svg class="icon"><use href="#i-phone"/></svg><h3>Choose <span data-server-name></span></h3><p>Your phone appears here in a moment.</p></div>
+        </div>
+      </section>
+
+      <section class="view" id="mirroring" hidden>
+        <header>
+          <h1>Mirroring</h1>
+          <p data-mirror-text></p>
+        </header>
+        <div class="workspace card">
+          <div class="preview" data-preview>
+            <div class="preview-screen">
+              <div class="loader" data-loader hidden></div>
+              <svg class="icon" data-preview-icon><use href="#i-phone"/></svg>
+              <strong data-preview-title></strong>
+              <small data-preview-text></small>
+            </div>
+          </div>
+          <div class="workspace-bar">
+            <span class="pill" data-status-pill></span>
+            <span class="technical" data-video-size></span>
+            <span class="spacer"></span>
+            <button class="button" data-action="show" hidden>Show mirror</button>
+            <button class="button primary" data-action="toggle"></button>
+          </div>
+        </div>
+        <p class="hint">Mouse wheel zooms, drag moves, double-click resets, and Alt+Enter goes full screen.</p>
+      </section>
+
+      <section class="view" id="devices" hidden>
+        <header>
+          <h1>Devices</h1>
+          <p>Phones that have connected to this computer.</p>
+        </header>
+        <div class="devices-layout">
+          <div class="card device-list" data-device-list></div>
+          <div class="card device-info" data-device-info></div>
+        </div>
+      </section>
+
+      <section class="view" id="settings" hidden>
+        <header>
+          <h1>Settings</h1>
+          <p>Saving restarts the receiver if it is running.</p>
+        </header>
+        <form class="settings" data-settings-form>
+          <fieldset class="card">
+            <legend>General</legend>
+            <label class="switch-row">
+              <span><strong>Get ready when Mimo opens</strong><small>Your phone can connect right away.</small></span>
+              <input type="checkbox" name="startOnOpen">
+            </label>
+          </fieldset>
+          <fieldset class="card">
+            <legend>Display</legend>
+            <label>Resolution
+              <select name="resolution">
+                <option value="1280x720">720p</option>
+                <option value="1920x1080">1080p</option>
+                <option value="2560x1440">1440p (H.265)</option>
+              </select>
+            </label>
+            <label>Maximum frame rate
+              <select name="fps">
+                <option value="30">30 fps</option>
+                <option value="60">60 fps</option>
+              </select>
+            </label>
+          </fieldset>
+          <fieldset class="card">
+            <legend>Connection</legend>
+            <label>Name on your iPhone
+              <input type="text" name="serverName" maxlength="40" required>
+            </label>
+            <label class="switch-row">
+              <span><strong>Play sound</strong><small>Sends iPhone audio to this computer.</small></span>
+              <input type="checkbox" name="audio">
+            </label>
+          </fieldset>
+          <div class="settings-actions">
+            <span class="saved" data-saved hidden>Saved</span>
+            <button class="button primary" type="submit">Save changes</button>
+          </div>
+        </form>
+      </section>
+    </main>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>

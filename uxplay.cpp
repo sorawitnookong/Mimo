@@ -2723,7 +2723,7 @@ extern "C" void conn_init (void *cls) {
 extern "C" void conn_destroy (void *cls) {
     //video_renderer_update_background(-1);
     open_connections--;
-    LOGD("Open connections: %i", open_connections);
+    LOGI("Open connections: %i", open_connections);
     if (open_connections == 0) {
         remote_clock_offset = 0;
         if (use_audio) {
@@ -3379,6 +3379,8 @@ int main (int argc, char *argv[]) {
 #ifdef _WIN32
     /* initialise Windows kernel qpc frequency for recv timestamping */
     ntp_global_init();
+    /* the Mimo app reads the log through a pipe, and needs each line as it is written */
+    setvbuf(stdout, NULL, _IONBF, 0);
 #endif
 
 #ifdef _WIN32

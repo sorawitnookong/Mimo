@@ -1420,6 +1420,9 @@ static DWORD WINAPI zoom_window_thread(LPVOID data) {
     window_class.hInstance = GetModuleHandleW(NULL);
     window_class.hCursor = LoadCursor(NULL, IDC_ARROW);
     window_class.hbrBackground = (HBRUSH) GetStockObject(BLACK_BRUSH);
+    /* the launcher starts uxplay in build-fit */
+    window_class.hIcon = (HICON) LoadImageW(NULL, L"..\\assets\\mimo.ico", IMAGE_ICON, 0, 0,
+                                            LR_LOADFROMFILE | LR_DEFAULTSIZE);
     window_class.lpszClassName = L"MimoVideoWindow";
     RegisterClassW(&window_class);
     zoom_window = CreateWindowExW(0, window_class.lpszClassName, L"Mimo", WS_OVERLAPPEDWINDOW,
